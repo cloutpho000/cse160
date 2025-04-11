@@ -120,6 +120,6 @@ function handleDrawOperationEvent(){
     console.log("Angle Between v1 and v2 is " + angle + "degrees.");
   } else if (operation == "tri"){
     let area = areaTriangle(v1, v2);
-    console.log("Area: " + area);
+    console.log("Area of the Triangle formed by v1 and v2: " + area);
   }
 }
