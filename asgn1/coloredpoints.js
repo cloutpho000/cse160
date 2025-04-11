@@ -30,7 +30,8 @@ function setupWebGL(){
   canvas = document.getElementById('webgl');
 
   // Get the rendering context for WebGL
-  gl = getWebGLContext(canvas);
+  //gl = getWebGLContext(canvas);
+  gl = canvas.getContext("webgl", { preserveDrawingBuffer: true });
   if (!gl) {
     console.log('Failed to get the rendering context for WebGL');
     return;
@@ -82,6 +83,7 @@ function addActionsForHtmlUI(){
   document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value / 100; });
 
   document.getElementById('sizeSlide').addEventListener('mouseup', function() { g_selected_size = this.value; });
+  document.getElementById('clear').onclick = function() {g_shapesList=[]; renderAllShapes();};
 
 }
 
@@ -94,6 +96,7 @@ function main() {
   addActionsForHtmlUI();
   // Register function (event handler) to be called on a mouse press
   canvas.onmousedown = click;
+  canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev) }};
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
