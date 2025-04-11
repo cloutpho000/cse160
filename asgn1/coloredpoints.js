@@ -63,8 +63,8 @@ let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 function addActionsForHtmlUI(){
 
   //button events
-  document.getElementById('green').onclick = function() {g_selectedColor = [0.0, 1.0, 0.0, 0.0]; };
-  document.getElementById('red').onclick = function() { g_selectedColor = [1.0, 0.0, 0.0, 0.0]; };
+  document.getElementById('green').onclick = function() {g_selectedColor = [0.0, 1.0, 0.0, 1.0]; };
+  document.getElementById('red').onclick = function() { g_selectedColor = [1.0, 0.0, 0.0, 1.0]; };
 
   document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value / 100; });
   document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value / 100; });
@@ -110,7 +110,7 @@ function click(ev) {
   renderAllShapes();
 }
 
-function convertCoordinatesEventToGL(ev){
+function convertCoordinatesEventToGL(ev) {
   var x = ev.clientX; // x coordinate of a mouse pointer
   var y = ev.clientY; // y coordinate of a mouse pointer
   var rect = ev.target.getBoundingClientRect();
