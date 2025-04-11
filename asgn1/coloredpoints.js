@@ -67,16 +67,28 @@ function connectVariablesToGLSL(){
   }
 }
 
+//constants
+const POINT = 0;
+const TRIANGLE = 1;
+const CIRCLE = 2;
+
 
 //more gloabl vars related to ui elements
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selected_size = 5;
+let g_selectedType = POINT;
+
 
 function addActionsForHtmlUI(){
 
   //button events
   document.getElementById('green').onclick = function() {g_selectedColor = [0.0, 1.0, 0.0, 1.0]; };
   document.getElementById('red').onclick = function() { g_selectedColor = [1.0, 0.0, 0.0, 1.0]; };
+
+  document.getElementById("pointButton").onclick = function() { g_selectedType = POINT};
+  document.getElementById('triButton').onclick = function() { g_selectedType = TRIANGLE};
+  document.getElementById('circleButton').onclick = function() { g_selectedType = CIRCLE};
+
 
   document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value / 100; });
   document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value / 100; });
@@ -112,6 +124,21 @@ class Point{
     this.color = [1.0, 1.0, 1.0, 1.0];
     this.size = 5.0;
   }
+  render() {
+    var xy = this.position;
+    var rgba = this.color;
+    var size = this.size;
+
+    gl.disableVertexAttribArray(a_Position);
+
+    gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
+
+    gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+
+    gl.uniform1f(u_size, size);
+
+    gl.drawArrays(gl.POINTS, 0, 1);
+  }
 }
 
 var g_shapesList = [];
@@ -123,7 +150,14 @@ var g_sizes = []; //array
 function click(ev) {
   let [x,y] = convertCoordinatesEventToGL(ev);
 
-  let point = new Point();
+  let point;
+  if (g_selectedType == POINT){
+    point = new Point();
+  } else if (g_selectedType == TRIANGLE) {
+    point = new Triangle();
+  } else{
+    point = new Circle();
+  }
   point.position = [x,y];
   point.color = g_selectedColor.slice();
   point.size = g_selected_size;
@@ -161,20 +195,8 @@ function convertCoordinatesEventToGL(ev) {
 function renderAllShapes(){
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  var len = g_shapesList.length;
-  for(var i = 0; i < len; i++) {
-    var xy = g_shapesList[i].position;
-    var rgba = g_shapesList[i].color;
-    var size = g_shapesList[i].size;
-
-    // Pass the position of a point to a_Position variable
-    gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
-    // Pass the color of a point to u_FragColor variable
-    gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
-    //pass the size of the point
-    gl.uniform1f(u_size, parseFloat(size));
-    // Draw
-    gl.drawArrays(gl.POINTS, 0, 1);
+  for (let i = 0; i < g_shapesList.length; i++) {
+    g_shapesList[i].render();  // Let each shape render itself
   }
 }
 
