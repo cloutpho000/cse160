@@ -1,33 +1,30 @@
-class Triangle{
-    constructor(){
-        this.type = 'triangle';
-        this.position = [0.0, 0.0, 0.0];
-        this.color = [1.0, 1.0, 1.0, 1.0];
-        this.size = 5.0;
-        this.vertecies = this.generateDefaultVertices();
-    }
-    generateDefaultVertices() {
-      // Create a triangle centered at position with a certain size
-      var d = this.size / 200.0;
+class Triangle {
+  constructor() {
+      this.type = 'triangle';
+      this.position = [0.0, 0.0, 0.0];
+      this.color = [1.0, 1.0, 1.0, 1.0];
+      this.size = 5.0;
+  }
+
+  generateVertices() {
+      let d = this.size / 200.0;
       return [
-        this.position[0], this.position[1] + d,  // Vertex 1
-        this.position[0] - d, this.position[1] - d,  // Vertex 2
-        this.position[0] + d, this.position[1] - d   // Vertex 3
+          this.position[0], this.position[1] + d,       // Top
+          this.position[0] - d, this.position[1] - d,    // Bottom left
+          this.position[0] + d, this.position[1] - d     // Bottom right
       ];
-    }
-    render() {
-        var xy = this.position;
-        var rgba = this.color;
-        var size = this.size;
-        gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
+  }
 
-        gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+  render() {
+      let rgba = this.color;
+      let size = this.size;
 
-        gl.uniform1f(u_size, size);
+      gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+      gl.uniform1f(u_size, size);
 
-
-        drawTriangle(this.vertecies);
-    }
+      let vertices = this.generateVertices();
+      drawTriangle(vertices);
+  }
 }
 
 function drawTriangle(vertecies) {
