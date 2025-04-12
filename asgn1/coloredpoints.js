@@ -89,6 +89,7 @@ function addActionsForHtmlUI(){
   document.getElementById("pointButton").onclick = function() { g_selectedType = POINT};
   document.getElementById('triButton').onclick = function() { g_selectedType = TRIANGLE};
   document.getElementById('circleButton').onclick = function() { g_selectedType = CIRCLE};
+  document.getElementById('pic').onclick = drawing;
 
 
   document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value / 100; });
@@ -113,7 +114,7 @@ function main() {
 
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-  
+
   // Register function (event handler) to be called on a mouse press
   canvas.onmousedown = click;
   canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev) }};
@@ -205,9 +206,210 @@ function renderAllShapes(){
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   for (let i = 0; i < g_shapesList.length; i++) {
-    g_shapesList[i].render();  // Let each shape render itself
+    g_shapesList[i].render();  
   }
 }
+
+function graphToWebGL(x, y) {
+  let xGL = (x / 10) * 2 - 1;
+  let yGL = (y / 10) * 2 - 1;
+  return [xGL, yGL];
+}
+
+
+function drawing() {
+  var brown = [0.6, 0.3, 0.1, 1.0];
+  var red = [1.0, 0.0, 0.0, 1.0];
+  var yellow = [1.0, 1.0, 0.0, 1.0];
+  var pink = [1.0, 0.75, 0.8, 1.0];
+  var blue = [0.0, 0.0, 1.0, 1.0];
+  var green = [0.0, 1.0, 0.0, 1.0];
+
+  var triangles = [
+    { //1
+      vertecies: [
+        graphToWebGL(8, 10),
+        graphToWebGL(10, 9),
+        graphToWebGL(10, 10)
+      ],
+      color: yellow
+    },
+    { //2
+      vertecies: [
+        graphToWebGL(0, 8),
+        graphToWebGL(4, 8),
+        graphToWebGL(2, 9)
+      ],
+      color: green
+    },
+    { //3
+      vertecies: [
+        graphToWebGL(3, 8),
+        graphToWebGL(5, 7),
+        graphToWebGL(5, 9)
+      ],
+      color: green
+    },
+    { //4
+      vertecies: [
+        graphToWebGL(4, 8),
+        graphToWebGL(4, 6),
+        graphToWebGL(5, 7)
+      ],
+      color: green
+    },
+    { //5
+      vertecies: [
+        graphToWebGL(1, 8),
+        graphToWebGL(4, 6),
+        graphToWebGL(4, 8)
+      ],
+      color: green
+    },
+    { //6
+      vertecies: [
+        graphToWebGL(4, 6),
+        graphToWebGL(1, 8),
+        graphToWebGL(1, 6)
+      ],
+      color: green
+    },
+    { //7
+      vertecies: [
+        graphToWebGL(1, 6),
+        graphToWebGL(1, 8),
+        graphToWebGL(0, 7)
+      ],
+      color: green
+    },
+    { //8
+      vertecies: [
+        graphToWebGL(2, 6),
+        graphToWebGL(3, 5),
+        graphToWebGL(3, 6)
+      ],
+      color: brown
+    },
+    { //9
+      vertecies: [
+        graphToWebGL(3, 5),
+        graphToWebGL(2, 5),
+        graphToWebGL(2, 6)
+      ],
+      color: brown
+    },
+    { //10
+      vertecies: [
+        graphToWebGL(2, 5),
+        graphToWebGL(3, 2),
+        graphToWebGL(3, 5)
+      ],
+      color: brown
+    },
+    { //11
+      vertecies: [
+        graphToWebGL(3, 2),
+        graphToWebGL(2, 2),
+        graphToWebGL(2, 5)
+      ],
+      color: brown
+    },
+    { //12
+      vertecies: [
+        graphToWebGL(5, 5),
+        graphToWebGL(4, 6),
+        graphToWebGL(5, 6)
+      ],
+      color: red
+    },
+    { //13
+      vertecies: [
+        graphToWebGL(5, 5),
+        graphToWebGL(4, 5),
+        graphToWebGL(4, 6)
+      ],
+      color: red
+    },
+    { //14
+      vertecies: [
+        graphToWebGL(0, 6),
+        graphToWebGL(1, 5),
+        graphToWebGL(1, 6)
+      ],
+      color: pink
+    },
+    { //15
+      vertecies: [
+        graphToWebGL(0, 5),
+        graphToWebGL(0, 6),
+        graphToWebGL(1, 5)
+      ],
+      color: pink
+    },
+    { //16
+      vertecies: [
+        graphToWebGL(0, 2),
+        graphToWebGL(3, 2),
+        graphToWebGL(3, 0)
+      ],
+      color: brown
+    },
+    { //17
+      vertecies: [
+        graphToWebGL(0, 2),
+        graphToWebGL(0, 0),
+        graphToWebGL(3, 0)
+      ],
+      color: brown
+    },
+    { //18
+      vertecies: [
+        graphToWebGL(3, 2),
+        graphToWebGL(3, 0),
+        graphToWebGL(5, 0)
+      ],
+      color: blue
+    },
+    { //19
+      vertecies: [
+        graphToWebGL(5, 0),
+        graphToWebGL(5, 2),
+        graphToWebGL(3, 2)
+      ],
+      color: blue
+    },
+    { //20
+      vertecies: [
+        graphToWebGL(5, 0),
+        graphToWebGL(5, 2),
+        graphToWebGL(10, 0)
+      ],
+      color: brown
+    },
+    { //21
+      vertecies: [
+        graphToWebGL(5, 2),
+        graphToWebGL(10, 2),
+        graphToWebGL(10, 0)
+      ],
+      color: brown
+    }
+  ];
+
+  for (let tri of triangles) {
+    gl.uniform4fv(u_FragColor, tri.color);
+    drawTriangle([
+      tri.vertecies[0][0], tri.vertecies[0][1], // x1, y1
+      tri.vertecies[1][0], tri.vertecies[1][1], // x2, y2
+      tri.vertecies[2][0], tri.vertecies[2][1]  // x3, y3
+    ]);
+  }
+}
+
+
+
+
+
 
 
 main();

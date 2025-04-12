@@ -4,6 +4,16 @@ class Triangle{
         this.position = [0.0, 0.0, 0.0];
         this.color = [1.0, 1.0, 1.0, 1.0];
         this.size = 5.0;
+        this.vertecies = this.generateDefaultVertices();
+    }
+    generateDefaultVertices() {
+      // Create a triangle centered at position with a certain size
+      var d = this.size / 200.0;
+      return [
+        this.position[0], this.position[1] + d,  // Vertex 1
+        this.position[0] - d, this.position[1] - d,  // Vertex 2
+        this.position[0] + d, this.position[1] - d   // Vertex 3
+      ];
     }
     render() {
         var xy = this.position;
@@ -15,8 +25,8 @@ class Triangle{
 
         gl.uniform1f(u_size, size);
 
-        var d = this.size/200.0
-        drawTriangle( [xy[0], xy[1], xy[0]+d, xy[1], xy[0], xy[1]+d] );
+
+        drawTriangle(this.vertecies);
     }
 }
 
