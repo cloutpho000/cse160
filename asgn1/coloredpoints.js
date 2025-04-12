@@ -95,6 +95,7 @@ function addActionsForHtmlUI(){
   document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value / 100; });
   document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value / 100; });
   document.getElementById('segSlide').addEventListener('mouseup', function() { g_segments = this.value; });
+  document.getElementById('alpha').addEventListener('mouseup', function() { g_selectedColor[3] = this.value; });
 
   document.getElementById('sizeSlide').addEventListener('mouseup', function() { g_selected_size = this.value; });
   document.getElementById('clear').onclick = function() {g_shapesList=[]; renderAllShapes();};
@@ -108,6 +109,11 @@ function main() {
   connectVariablesToGLSL();
 
   addActionsForHtmlUI();
+
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  
   // Register function (event handler) to be called on a mouse press
   canvas.onmousedown = click;
   canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev) }};
