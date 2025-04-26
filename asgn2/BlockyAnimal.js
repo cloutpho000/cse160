@@ -102,7 +102,7 @@ function addActionsForHtmlUI(){
 
   //button events
 
-  document.getElementById('angleSlide').addEventListener('input', function() {g_globalAngle = this.value; renderAllShapes();});
+  document.getElementById('angleSlide').addEventListener('input', function() {g_globalAngle = Number(this.value); renderAllShapes();});
   document.getElementById('yellowSlide').addEventListener('input', function() {g_yellowAngle = this.value; renderAllShapes();});
   document.getElementById('magSlide').addEventListener('input', function() {g_fastAngle = this.value; renderAllShapes();});
 
