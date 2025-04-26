@@ -91,8 +91,11 @@ let g_selectedType = POINT;
 let g_segments = 10;
 let g_globalAngle = 0;
 let g_yellowAngle = 0;
+let g_fastAngle = 0;
 let g_magAngle = 0;
-g_yellowAnimation = true;
+g_yellowAnimation = false;
+
+
 
 
 function addActionsForHtmlUI(){
@@ -101,7 +104,7 @@ function addActionsForHtmlUI(){
 
   document.getElementById('angleSlide').addEventListener('input', function() {g_globalAngle = this.value; renderAllShapes();});
   document.getElementById('yellowSlide').addEventListener('input', function() {g_yellowAngle = this.value; renderAllShapes();});
-  document.getElementById('magSlide').addEventListener('input', function() {g_magAngle = this.value; renderAllShapes();});
+  document.getElementById('magSlide').addEventListener('input', function() {g_fastAngle = this.value; renderAllShapes();});
 
   document.getElementById('animationYellowOnButton').onclick = function(){g_yellowAnimation = true;};
   document.getElementById('animationYellowOffButton').onclick = function(){g_yellowAnimation = false;};
@@ -124,6 +127,24 @@ function main() {
   canvas.onmousedown = click;
   canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev) }};
 
+  let isDragging = false;
+  let lastX = 0;
+
+  canvas.addEventListener('mousedown',function(ev) {
+    isDragging = true;
+    lastX = ev.clientX;
+  });
+  canvas.addEventListener('mouseup',function(ev){
+    isDragging = false;
+  });
+  canvas.addEventListener('mousemove',function(ev){
+    if (isDragging) {
+      let dx = ev.clientX - lastX;
+      g_globalAngle += dx * .4;
+      lastX = ev.clientX;
+    }
+  });
+
   // Specify the color for clearing <canvas>
   gl.clearColor(0, 0.0, 0.0, 1.0);
 
@@ -134,7 +155,18 @@ function main() {
 
 var g_start = performance.now()/1000;
 var g_seconds = performance.now()/1000 - g_start;
+let g_lastFrameTime = performance.now();
+let g_fps = 0;
 function tick(){
+
+
+    let now = performance.now();
+    let elapsed = now - g_lastFrameTime;
+    g_lastFrameTime = now;
+    g_fps = 1000/ elapsed;
+
+    document.getElementById('fps').innerText = "FPS: " + g_fps.toFixed(1);
+
 
     g_seconds = performance.now()/1000 - g_start;
 
@@ -148,6 +180,8 @@ function tick(){
 function updateAnimationAngles(){
   if (g_yellowAnimation) {
     g_yellowAngle = (45*Math.sin(g_seconds));
+    g_fastAngle = 45 * Math.sin(1.5 * g_seconds);  
+
   }
 }
 
@@ -242,231 +276,97 @@ function renderAllShapes(){
  // drawTriangle3D([-1,0,0, -.5,-1,0, 0,0,0]);
 
   var body = new Cube();
-  body.color = [1, 0,0,1];
-  body.matrix.translate(-.25, -.75, 0);
-  body.matrix.rotate(-5, 1, 0, 0);
-  body.matrix.scale(0.5, .3, .5);
+  body.color = [0.36, 0.25, 0.20, 1.0];
+  body.matrix.translate(-.25, -1, 0);
+  body.matrix.rotate(0, 1, 0, 0);
+  body.matrix.scale(0.5, .5, .5);
   body.render();
 
   var leftArm = new Cube();
-  leftArm.color = [1, 1, 0, 1];
+  leftArm.color = [1, 1, 0, 0];
   leftArm.matrix.setTranslate(0, -.5, 0);
   leftArm.matrix.rotate(-5, 1,0, 0);
   leftArm.matrix.rotate(-g_yellowAngle, 0,0, 1);
   var yellowCoordinates = new Matrix4(leftArm.matrix);
-  leftArm.matrix.scale(0.25, 0.7, .5);
+  leftArm.matrix.scale(0.25, 0.7, .2);
   leftArm.matrix.translate(-.5, 0,0);
-  leftArm.render();
+  //leftArm.render();
 
   var box = new Cube();
-  box.color = [1,0,1,1];
+  box.color = [1,0,1,0];
   box.matrix = yellowCoordinates;
   box.matrix.translate(0, .65, 0);
   box.matrix.rotate(g_magAngle, 0, 0, 1);
   box.matrix.scale(.3, .3, .3);
   box.matrix.translate(-.5, 0, -.0001);
-  box.render();
+  //box.render();
+
+  var stalk = new Cylinder(30);
+  stalk.color = [0.45, 0.53, 0.18, 1.0];
+  stalk.matrix.setTranslate(0, -0.75, .3);
+  stalk.matrix.scale(0.3, 1, 0.3);
+  stalk.matrix.rotate(-g_yellowAngle*.3, 0, 0,1);
+  var stalkCoords = new Matrix4(stalk.matrix);
+  stalk.render();
+
+  var shooter = new Cylinder(30);
+  shooter.color = [0.3, 0.8, 0.1, 1.0];
+  shooter.matrix = stalkCoords;
+  shooter.matrix.translate(0,1,-1);
+  shooter.matrix.scale(1,.35,1.5);
+  shooter.matrix.rotate(90, 1, 0, 0);
+  shooter.matrix.rotate(g_yellowAngle*.3, 0, 0, 1);
+  var shooterCoord = new Matrix4(shooter.matrix);
+  shooter.render();
+
+  var antena1 = new Cube();
+  antena1.color = [1.0, 0.84, 0.0, 1.0];
+  antena1.matrix = new Matrix4(shooterCoord);
+  antena1.matrix.scale(.1,.1,1);
+  antena1.matrix.translate(-2,6.5,-1.2);
+  antena1.matrix.rotate(g_fastAngle * 2, 0, 0, 1);
+
+  antena1.render();
+
+  var antena2 = new Cube();
+  antena2.color = [0.0, 0.39, 0.0, 1.0];
+  antena2.matrix = new Matrix4(shooterCoord);
+  antena2.matrix.scale(.1,.1,1);
+  antena2.matrix.translate(2,6.5,-1.2);
+  antena2.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
+
+  antena2.render();
+
+  var antena2 = new Cube();
+  antena2.color = [1.0, 0.84, 0.0, 1.0];
+  antena2.matrix = new Matrix4(shooterCoord);
+  antena2.matrix.scale(.1,.1,1);
+  antena2.matrix.translate(0,6.5,-1.2);
+  antena2.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
+
+  antena2.render();
+
+  var antena2 = new Cube();
+  antena2.color = [1.0, 0.84, 0.0, 1.0];
+  antena2.matrix = new Matrix4(shooterCoord);
+  antena2.matrix.scale(.1,.1,1);
+  antena2.matrix.translate(1,6.5,-1.2);
+  antena2.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
+
+  antena2.render();
+
+  var antena2 = new Cube();
+  antena2.color = [0.0, 0.39, 0.0, 1.0];
+  antena2.matrix = new Matrix4(shooterCoord);
+  antena2.matrix.scale(.1,.1,1);
+  antena2.matrix.translate(-1,6.5,-1.2);
+  antena2.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
+
+  antena2.render();
+
+
+
 }
-
-function graphToWebGL(x, y) {
-  let xGL = (x / 10) * 2 - 1;
-  let yGL = (y / 10) * 2 - 1;
-  return [xGL, yGL];
-}
-
-
-function drawing() {
-  var brown = [0.6, 0.3, 0.1, 1.0];
-  var red = [1.0, 0.0, 0.0, 1.0];
-  var yellow = [1.0, 1.0, 0.0, 1.0];
-  var pink = [1.0, 0.75, 0.8, 1.0];
-  var blue = [0.0, 0.0, 1.0, 1.0];
-  var green = [0.0, 1.0, 0.0, 1.0];
-
-  var triangles = [
-    { //1
-      vertecies: [
-        graphToWebGL(8, 10),
-        graphToWebGL(10, 9),
-        graphToWebGL(10, 10)
-      ],
-      color: yellow
-    },
-    { //2
-      vertecies: [
-        graphToWebGL(0, 8),
-        graphToWebGL(4, 8),
-        graphToWebGL(2, 9)
-      ],
-      color: green
-    },
-    { //3
-      vertecies: [
-        graphToWebGL(3, 8),
-        graphToWebGL(5, 7),
-        graphToWebGL(5, 9)
-      ],
-      color: green
-    },
-    { //4
-      vertecies: [
-        graphToWebGL(4, 8),
-        graphToWebGL(4, 6),
-        graphToWebGL(5, 7)
-      ],
-      color: green
-    },
-    { //5
-      vertecies: [
-        graphToWebGL(1, 8),
-        graphToWebGL(4, 6),
-        graphToWebGL(4, 8)
-      ],
-      color: green
-    },
-    { //6
-      vertecies: [
-        graphToWebGL(4, 6),
-        graphToWebGL(1, 8),
-        graphToWebGL(1, 6)
-      ],
-      color: green
-    },
-    { //7
-      vertecies: [
-        graphToWebGL(1, 6),
-        graphToWebGL(1, 8),
-        graphToWebGL(0, 7)
-      ],
-      color: green
-    },
-    { //8
-      vertecies: [
-        graphToWebGL(2, 6),
-        graphToWebGL(3, 5),
-        graphToWebGL(3, 6)
-      ],
-      color: brown
-    },
-    { //9
-      vertecies: [
-        graphToWebGL(3, 5),
-        graphToWebGL(2, 5),
-        graphToWebGL(2, 6)
-      ],
-      color: brown
-    },
-    { //10
-      vertecies: [
-        graphToWebGL(2, 5),
-        graphToWebGL(3, 2),
-        graphToWebGL(3, 5)
-      ],
-      color: brown
-    },
-    { //11
-      vertecies: [
-        graphToWebGL(3, 2),
-        graphToWebGL(2, 2),
-        graphToWebGL(2, 5)
-      ],
-      color: brown
-    },
-    { //12
-      vertecies: [
-        graphToWebGL(5, 5),
-        graphToWebGL(4, 6),
-        graphToWebGL(5, 6)
-      ],
-      color: red
-    },
-    { //13
-      vertecies: [
-        graphToWebGL(5, 5),
-        graphToWebGL(4, 5),
-        graphToWebGL(4, 6)
-      ],
-      color: red
-    },
-    { //14
-      vertecies: [
-        graphToWebGL(0, 6),
-        graphToWebGL(1, 5),
-        graphToWebGL(1, 6)
-      ],
-      color: pink
-    },
-    { //15
-      vertecies: [
-        graphToWebGL(0, 5),
-        graphToWebGL(0, 6),
-        graphToWebGL(1, 5)
-      ],
-      color: pink
-    },
-    { //16
-      vertecies: [
-        graphToWebGL(0, 2),
-        graphToWebGL(3, 2),
-        graphToWebGL(3, 0)
-      ],
-      color: brown
-    },
-    { //17
-      vertecies: [
-        graphToWebGL(0, 2),
-        graphToWebGL(0, 0),
-        graphToWebGL(3, 0)
-      ],
-      color: brown
-    },
-    { //18
-      vertecies: [
-        graphToWebGL(3, 2),
-        graphToWebGL(3, 0),
-        graphToWebGL(5, 0)
-      ],
-      color: blue
-    },
-    { //19
-      vertecies: [
-        graphToWebGL(5, 0),
-        graphToWebGL(5, 2),
-        graphToWebGL(3, 2)
-      ],
-      color: blue
-    },
-    { //20
-      vertecies: [
-        graphToWebGL(5, 0),
-        graphToWebGL(5, 2),
-        graphToWebGL(10, 0)
-      ],
-      color: brown
-    },
-    { //21
-      vertecies: [
-        graphToWebGL(5, 2),
-        graphToWebGL(10, 2),
-        graphToWebGL(10, 0)
-      ],
-      color: brown
-    }
-  ];
-
-  for (let tri of triangles) {
-    gl.uniform4fv(u_FragColor, tri.color);
-    drawTriangle([
-      tri.vertecies[0][0], tri.vertecies[0][1], // x1, y1
-      tri.vertecies[1][0], tri.vertecies[1][1], // x2, y2
-      tri.vertecies[2][0], tri.vertecies[2][1]  // x3, y3
-    ]);
-  }
-}
-
-
-
-
 
 
 
