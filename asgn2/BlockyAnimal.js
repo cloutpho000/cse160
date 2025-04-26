@@ -336,32 +336,32 @@ function renderAllShapes(){
 
   antena2.render();
 
-  var antena2 = new Cube();
-  antena2.color = [1.0, 0.84, 0.0, 1.0];
-  antena2.matrix = new Matrix4(shooterCoord);
-  antena2.matrix.scale(.1,.1,1);
-  antena2.matrix.translate(0,6.5,-1.2);
-  antena2.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
+  var antena3 = new Cube();
+  antena3.color = [1.0, 0.84, 0.0, 1.0];
+  antena3.matrix = new Matrix4(shooterCoord);
+  antena3.matrix.scale(.1,.1,1);
+  antena3.matrix.translate(0,6.5,-1.2);
+  antena3.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
 
-  antena2.render();
+  antena3.render();
 
-  var antena2 = new Cube();
-  antena2.color = [1.0, 0.84, 0.0, 1.0];
-  antena2.matrix = new Matrix4(shooterCoord);
-  antena2.matrix.scale(.1,.1,1);
-  antena2.matrix.translate(1,6.5,-1.2);
-  antena2.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
+  var antena4 = new Cube();
+  antena4.color = [1.0, 0.84, 0.0, 1.0];
+  antena4.matrix = new Matrix4(shooterCoord);
+  antena4.matrix.scale(.1,.1,1);
+  antena4.matrix.translate(1,6.5,-1.2);
+  antena4.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
 
-  antena2.render();
+  antena4.render();
 
-  var antena2 = new Cube();
-  antena2.color = [0.0, 0.39, 0.0, 1.0];
-  antena2.matrix = new Matrix4(shooterCoord);
-  antena2.matrix.scale(.1,.1,1);
-  antena2.matrix.translate(-1,6.5,-1.2);
-  antena2.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
+  var antena5 = new Cube();
+  antena5.color = [0.0, 0.39, 0.0, 1.0];
+  antena5.matrix = new Matrix4(shooterCoord);
+  antena5.matrix.scale(.1,.1,1);
+  antena5.matrix.translate(-1,6.5,-1.2);
+  antena5.matrix.rotate(-g_fastAngle * 2 , 0, 0, 1);
 
-  antena2.render();
+  antena5.render();
 
 
 
