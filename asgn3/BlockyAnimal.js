@@ -19,6 +19,7 @@ var FSHADER_SOURCE =
   'varying vec2 v_UV;\n' +
   'uniform vec4 u_FragColor;\n' +  // uniform
   'uniform sampler2D u_Sampler0;\n' +
+  'uniform sampler2D u_Sampler1;\n' +
   'uniform int u_whichTexture;\n' +
   'void main() {\n' +
   '  if (u_whichTexture == -2) { \n'+
@@ -27,6 +28,8 @@ var FSHADER_SOURCE =
   '   gl_FragColor = vec4(v_UV, 1.0, 1.0);\n' +
   '  } else if (u_whichTexture == 0){\n' +
   '    gl_FragColor = texture2D(u_Sampler0, v_UV);\n'+
+  '  } else if (u_whichTexture == 1){\n' +
+  '    gl_FragColor = texture2D(u_Sampler1, v_UV);\n' +
   '  } else {\n ' +
   '    gl_FragColor = vec4(1, .2, .2, 1);' +
   '  }\n' +
@@ -103,6 +106,12 @@ function connectVariablesToGLSL(){
      return false;
    }
 
+   u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
+   if (!u_Sampler1){
+    console.log("failed to get the location of u_sampler1");
+    return false;
+   }
+
    u_whichTexture = gl.getUniformLocation(gl.program , 'u_whichTexture')
    if (!u_whichTexture){
     console.log("failed to get u_whichTextuer");
@@ -133,14 +142,23 @@ function initTextures() {
     return false;
   }
   // Register the event handler to be called on loading an image
-  image.onload = function(){ sendImageToTEXTURE0(image); };
+  image.onload = function(){ sendImageToSpecifiedSampler(image, u_Sampler0, gl.TEXTURE0, 0); };
   // Tell the browser to load an image
   image.src = 'sky.jpg';
+
+  var image1 = new Image();
+  if (!image1){
+    console.log("Failed to create imag1 in init textures");
+    return false;
+  }
+
+  image1.onload = function() {sendImageToSpecifiedSampler(image1, u_Sampler1, gl.TEXTURE1, 1); };
+  image1.src = 'stones.jpg'
 
   return true;
 }
 
-function sendImageToTEXTURE0(image) {
+function sendImageToSpecifiedSampler(image, sampler, textureUnit, unitNumber) {
   var texture = gl.createTexture();   // Create a texture object
   if (!texture) {
     console.log('Failed to create the texture object');
@@ -149,7 +167,7 @@ function sendImageToTEXTURE0(image) {
 
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
   // Enable texture unit0
-  gl.activeTexture(gl.TEXTURE0);
+  gl.activeTexture(textureUnit);
   // Bind the texture object to the target
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -158,8 +176,7 @@ function sendImageToTEXTURE0(image) {
   // Set the texture image
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
   
-  // Set the texture unit 0 to the sampler
-  gl.uniform1i(u_Sampler0, 0);
+  gl.uniform1i(sampler, unitNumber);
 
   console.log("finished loading texture");
   
@@ -180,7 +197,8 @@ let g_globalAngle = 0;
 let g_yellowAngle = 0;
 let g_fastAngle = 0;
 let g_magAngle = 0;
-g_yellowAnimation = false;
+let g_yellowAnimation = false;
+let camera = new Camera();
 
 
 
@@ -219,22 +237,9 @@ function main() {
   canvas.onmousemove = function(ev) { if(ev.buttons == 1) { click(ev) }};
 
   let isDragging = false;
-  let lastX = 0;
+  let lastX, lastY;
 
-  canvas.addEventListener('mousedown',function(ev) {
-    isDragging = true;
-    lastX = ev.clientX;
-  });
-  canvas.addEventListener('mouseup',function(ev){
-    isDragging = false;
-  });
-  canvas.addEventListener('mousemove',function(ev){
-    if (isDragging) {
-      let dx = ev.clientX - lastX;
-      g_globalAngle += dx * .4;
-      lastX = ev.clientX;
-    }
-  });
+
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0, 0.0, 0.0, 1.0);
@@ -245,18 +250,17 @@ function main() {
 }
 
 function keydown(ev){
-  if (ev.keyCode == 87){ //'w'
-    g_eye[2] -= .2;
+  if (ev.key == 'q'){
+    camera.panLeft();
   }
-  else if (ev.keyCode == 83){ //'s'
-    g_eye[2] += .2
-  } else 
-  if (ev.keyCode == 65) { //'a'
-    g_globalAngle -= 5;
-  } else
-  if (ev.keyCode == 68){ //'d'
-    g_globalAngle += 5;
-  }
+  switch(ev.key){
+    case 'w' : camera.forward(); break;
+    case 's' : camera.back(); break;
+    case 'a' : camera.left(); break;
+    case 'd' : camera.right(); break;
+    case 'q' : camera.panLeft(); break;
+    case 'e' : camera.panRight(); break;
+  } 
   renderAllShapes();
   console.log(ev.keyCode);
 
@@ -268,6 +272,8 @@ var g_start = performance.now()/1000;
 var g_seconds = performance.now()/1000 - g_start;
 let g_lastFrameTime = performance.now();
 let g_fps = 0;
+
+
 function tick(){
 
 
@@ -347,17 +353,7 @@ function click(ev) {
   g_points.push([x, y]);
   g_colors.push(g_selectedColor.slice());
   g_sizes.push(g_selected_size);
-  // Store the coordinates to g_points array
-//  if (x >= 0.0 && y >= 0.0) {      // First quadrant
-//    g_colors.push([1.0, 0.0, 0.0, 1.0]);  // Red
-//  } else if (x < 0.0 && y < 0.0) { // Third quadrant
-//    g_colors.push([0.0, 1.0, 0.0, 1.0]);  // Green
-//  } else {                         // Others
-//    g_colors.push([1.0, 1.0, 1.0, 1.0]);  // White
-//  }
 
-
-  //draw all the shapes that are to be on the canvas
   renderAllShapes();
 }
 
@@ -372,9 +368,6 @@ function convertCoordinatesEventToGL(ev) {
   return([x,y]);
 }
 
-var g_eye = [0, 0, 3];
-var g_at = [0, 0, -100];
-var g_up = [0, 1, 0];
 
 function renderAllShapes(){
 
@@ -382,8 +375,7 @@ function renderAllShapes(){
   projMat.setPerspective(50, canvas.width/canvas.height, .1, 100);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
-  var viewMat = new Matrix4();
-  viewMat.setLookAt(g_eye[0], g_eye[1], g_eye[2], g_at[0], g_at[1], g_at[2], g_up[0], g_up[1], g_up[2]); //(eye, at, up)
+  var viewMat = camera.getViewMatrix();
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
   var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
@@ -400,8 +392,8 @@ function renderAllShapes(){
   var floor = new Cube();
   floor.color = [1, 0, 0, 1];
   floor.textureNum = 1;
-  floor.matrix.translate(-5, -1, -10);
-  floor.matrix.scale(10, .1, 10);
+  floor.matrix.translate(-20, -1,-20 );
+  floor.matrix.scale(40, .1, 40);
   //floor.matrix.translate(-.5, 0. -.5);
   floor.render();
 

@@ -1,3 +1,49 @@
+const CUBE_DEFINITION= [
+  // Front face
+  {
+    pos1: [0, 0, 0, 1, 1, 0, 1, 0, 0],
+    uv1:  [0, 0, 1, 1, 1, 0],
+    pos2: [0, 0, 0, 0, 1, 0, 1, 1, 0],
+    uv2:  [0, 0, 0, 1, 1, 1],
+  },
+  // Top
+  {
+    pos1: [0, 1, 0, 0, 1, 1, 1, 1, 1],
+    uv1:  [0, 0, 0, 1, 1, 1],
+    pos2: [0, 1, 0, 1, 1, 1, 1, 1, 0],
+    uv2:  [0, 0, 1, 1, 1, 0],
+  },
+  // Right
+  {
+    pos1: [1, 0, 0, 1, 1, 0, 1, 0, 1],
+    uv1:  [0, 0, 0, 1, 1, 0],
+    pos2: [1, 0, 1, 1, 1, 0, 1, 1, 1],
+    uv2:  [1, 0, 0, 1, 1, 1],
+  },
+  // Back
+  {
+    pos1: [1, 0, 1, 0, 1, 1, 1, 1, 1],
+    uv1:  [1, 0, 0, 1, 1, 1],
+    pos2: [1, 0, 1, 0, 0, 1, 0, 1, 1],
+    uv2:  [1, 0, 0, 0, 0, 1],
+  },
+  // Left
+  {
+    pos1: [0, 0, 0, 0, 1, 1, 0, 1, 0],
+    uv1:  [0, 0, 1, 1, 0, 1],
+    pos2: [0, 0, 0, 0, 0, 1, 0, 1, 1],
+    uv2:  [0, 0, 1, 0, 1, 1],
+  },
+  // Bottom
+  {
+    pos1: [0, 0, 0, 1, 0, 1, 1, 0, 0],
+    uv1:  [0, 0, 1, 1, 1, 0],
+    pos2: [0, 0, 0, 0, 0, 1, 1, 0, 1],
+    uv2:  [0, 0, 0, 1, 1, 1],
+  },
+];
+
+
 
 
 class Cube{
@@ -10,20 +56,9 @@ class Cube{
         this.matrix = new Matrix4();
         this.textureNum = 0;
     }
+
     
     render() {
-      function drawFace(tri1, tri2, brightness) {
-        if (brightness === undefined) brightness = 1.0;
-        gl.uniform4f(
-            u_FragColor,
-            rgba[0] * brightness,
-            rgba[1] * brightness,
-            rgba[2] * brightness,
-            rgba[3]
-        );
-        drawTriangle3D(tri1);
-        drawTriangle3D(tri2);
-    }
         var rgba = this.color;
 
         gl.uniform1i(u_whichTexture, this.textureNum);
@@ -31,12 +66,7 @@ class Cube{
         gl.uniform4f(u_FragColor,rgba[0],rgba[1],rgba[2], rgba[3]);
 
         gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
-        
-        
-    
-        // Front face (z = 0)
-        //drawTriangle3DUV([0,0,0, 1,1,0, 1,0,0], [1,0,0,1,1,1]);
-        // Front face (z = 0)
+
         drawTriangle3DUV(
           [0, 0, 0,  1, 1, 0,  1, 0, 0],  // triangle 1
           [0,0, 1, 1, 1, 0]            // UVs
@@ -98,6 +128,22 @@ class Cube{
 
     }
     
+}
+Cube.lastColor = null;
+Cube.lastTexture = null;
+Cube.lastMatrix = null;
+
+Cube.isSameColor = function(colorA, ColorB){
+  if (!colorA || !colorB) return false;
+  return colorA.length === colorB.length && colorA.every((value, i) => value === colorB[i]);
+};
+
+Cube.isSameMatrix = function(matrixA, matrixB){
+  if (!matrixA || !matrixB) return false;
+
+  const a = matrixA.elements;
+  const b = matrixB.elements;
+  return a.length === b.length && a.every((value, i) => value === b[i]);
 }
 
 function drawColoredTriangle3D(vertices, color) {
