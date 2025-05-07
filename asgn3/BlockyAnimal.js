@@ -20,6 +20,7 @@ var FSHADER_SOURCE =
   'uniform vec4 u_FragColor;\n' +  // uniform
   'uniform sampler2D u_Sampler0;\n' +
   'uniform sampler2D u_Sampler1;\n' +
+  'uniform sampler2D u_Sampler2;\n' +
   'uniform int u_whichTexture;\n' +
   'void main() {\n' +
   '  if (u_whichTexture == -2) { \n'+
@@ -30,6 +31,8 @@ var FSHADER_SOURCE =
   '    gl_FragColor = texture2D(u_Sampler0, v_UV);\n'+
   '  } else if (u_whichTexture == 1){\n' +
   '    gl_FragColor = texture2D(u_Sampler1, v_UV);\n' +
+  '  } else if (u_whichTexture == 2) {\n' +
+  '    gl_FragColor = texture2D(u_Sampler2, v_UV);\n' +
   '  } else {\n ' +
   '    gl_FragColor = vec4(1, .2, .2, 1);' +
   '  }\n' +
@@ -112,6 +115,12 @@ function connectVariablesToGLSL(){
     return false;
    }
 
+   u_Sampler2 = gl.getUniformLocation(gl.program, 'u_Sampler2');
+   if (!u_Sampler2){
+    console.log("failed to get u_Sampler2");
+    return false;
+   }
+
    u_whichTexture = gl.getUniformLocation(gl.program , 'u_whichTexture')
    if (!u_whichTexture){
     console.log("failed to get u_whichTextuer");
@@ -153,7 +162,12 @@ function initTextures() {
   }
 
   image1.onload = function() {sendImageToSpecifiedSampler(image1, u_Sampler1, gl.TEXTURE1, 1); };
-  image1.src = 'stones.jpg'
+  image1.src = 'stones.jpg';
+
+
+  var image2 = new Image();
+  image2.onload = function() {sendImageToSpecifiedSampler(image2, u_Sampler2, gl.TEXTURE2, 2); };
+  image2.src = 'wall.jpg';
 
   return true;
 }
@@ -203,18 +217,7 @@ let camera = new Camera();
 
 
 
-function addActionsForHtmlUI(){
 
-  //button events
-
-  document.getElementById('angleSlide').addEventListener('input', function() {g_globalAngle = Number(this.value); renderAllShapes();});
-  document.getElementById('yellowSlide').addEventListener('input', function() {g_yellowAngle = this.value; renderAllShapes();});
-  document.getElementById('magSlide').addEventListener('input', function() {g_fastAngle = this.value; renderAllShapes();});
-
-  document.getElementById('animationYellowOnButton').onclick = function(){g_yellowAnimation = true;};
-  document.getElementById('animationYellowOffButton').onclick = function(){g_yellowAnimation = false;};
-
-}
 
 
 function main() {
@@ -222,7 +225,7 @@ function main() {
   setupWebGL();
   connectVariablesToGLSL();
 
-  addActionsForHtmlUI();
+  //addActionsForHtmlUI();
 
   document.onkeydown = keydown;
 
@@ -287,7 +290,7 @@ function tick(){
 
     g_seconds = performance.now()/1000 - g_start;
 
-    updateAnimationAngles();
+    //updateAnimationAngles();
 
     renderAllShapes();
 
