@@ -252,10 +252,10 @@ function keydown(ev){
     g_eye[2] += .2
   } else 
   if (ev.keyCode == 65) { //'a'
-    g_eye[0] -= .2;
+    g_globalAngle -= 5;
   } else
   if (ev.keyCode == 68){ //'d'
-    g_eye[0] += .2;
+    g_globalAngle += 5;
   }
   renderAllShapes();
   console.log(ev.keyCode);
@@ -400,10 +400,17 @@ function renderAllShapes(){
   var floor = new Cube();
   floor.color = [1, 0, 0, 1];
   floor.textureNum = 1;
-  floor.matrix.translate(-5, -2, -10);
+  floor.matrix.translate(-5, -1, -10);
   floor.matrix.scale(10, .1, 10);
   //floor.matrix.translate(-.5, 0. -.5);
   floor.render();
+
+  var sky = new Cube();
+  sky.color = [1, 0, 0, 1];
+  sky.textureNum = 0;
+  sky.matrix.scale(50, 50, 50);
+  sky.matrix.translate(-.5, -.5, -.5);
+  sky.render();
 
 
   var body = new Cube();
@@ -412,6 +419,8 @@ function renderAllShapes(){
   body.matrix.rotate(0, 1, 0, 0);
   body.matrix.scale(0.5, .5, .5);
   body.render();
+
+  drawMap();
 
 }
 
