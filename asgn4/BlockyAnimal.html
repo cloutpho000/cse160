@@ -16,6 +16,24 @@
     Light X<input type="range" min = '-250' max = '250' value = '0' class = 'slider' id= 'lightSlideX'>
     Light Y<input type="range" min = '-250' max = '250' value = '100' class = 'slider' id= 'lightSlideY'>
     Light Z<input type="range" min = '-250' max = '250' value = '-200' class = 'slider' id= 'lightSlideZ'>
+    <p>
+      <div>
+        <label for="lightColorR">Light Red: </label>
+        <input type="range" id="lightColorR" min="0" max="255" value="255">
+        <span id="lightColorRValue">255</span>
+      </div>
+      <div>
+        <label for="lightColorG">Light Green: </label>
+        <input type="range" id="lightColorG" min="0" max="255" value="255">
+        <span id="lightColorGValue">255</span>
+      </div>
+      <div>
+        <label for="lightColorB">Light Blue: </label>
+        <input type="range" id="lightColorB" min="0" max="255" value="255">
+        <span id="lightColorBValue">255</span>
+      </div>
+      
+    <button id = "light">light on/off</button>
 
    
     
@@ -25,10 +43,10 @@
   <script src="../lib/cuon-utils.js"></script>
   <script src="../lib/cuon-matrix.js"></script>
   <script src = "Circle.js"></script>
+  <script src = "Sphere.js"></script>
   <script src="Triangle.js"></script>
   <script src="Cube.js"></script>
   <script src = "World.js"></script>
   <script src="BlockyAnimal.js"></script>
-  <script src = "Sphere.js"></script>
   </body>
 </html>
